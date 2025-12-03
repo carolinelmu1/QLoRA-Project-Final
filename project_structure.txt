@@ -1,0 +1,27 @@
+QLoRA-Project/
+├── README.md
+├── requirements.txt
+├── LICENSE
+│
+├── notebooks/
+│   ├── 01_baseline_lora.ipynb
+│   ├── 02_qlora_implementation.ipynb
+│   ├── 03_diagnostic_analysis.ipynb
+│   └── outputs/
+│
+├── src/
+│   ├── __init__.py
+│   ├── model_utils.py
+│   ├── training.py
+│   ├── evaluation.py
+│   └── visualization.py
+│
+├── docs/
+│   ├── algorithm13_extension.md
+│   ├── model_card.md
+│   ├── data_card.md
+│   └── ethical_considerations.md
+│
+└── results/
+    ├── figures/
+    └── tables/

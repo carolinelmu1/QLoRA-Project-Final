@@ -1,0 +1,37 @@
+# -----------------------
+# Python virtual environments
+# -----------------------
+.venv/
+venv/
+env/
+
+# -----------------------
+# Jupyter notebook caches
+# -----------------------
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# -----------------------
+# Python cache files
+# -----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -----------------------
+# macOS system files
+# -----------------------
+.DS_Store
+
+# -----------------------
+# Results and generated outputs
+# (optional—remove these lines if you want results committed)
+# -----------------------
+results/
+notebooks/outputs/
+
+# -----------------------
+# VS Code settings (optional)
+# -----------------------
+.vscode/
