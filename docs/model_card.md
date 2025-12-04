@@ -1,206 +1,289 @@
-# Model Card: QLoRA Fine-Tuned GPT-2 Medium
-
-## Model Details
-
-**Model Name:** QLoRA-GPT2-Medium-Alpaca  
+# Model Card: LoRA & QLoRA Fine-Tuned GPT-2 Medium  
 **Version:** 1.0 (Diagnostic Research Implementation)  
 **Date:** December 2025  
-**Organization:** Vanderbilt University DS 5690 Course Project  
-**Author:** Caroline Ellis
+**Author:** Caroline Ellis  
+**Project:** DS 5690 – Diagnostic Analysis of QLoRA  
+**Repository:** https://github.com/carolinelmu1/QLoRA-Project  
 
-### Model Description
+---
 
-This model is GPT-2 Medium (355M parameters) fine-tuned using QLoRA (Quantized Low-Rank Adaptation) for instruction-following tasks. The base model's weights are quantized to 4-bit precision (NF4) while trainable adapter matrices remain in high precision (BF16).
+# 📌 Model Overview
 
-**Architecture:**
-- Base: GPT-2 Medium
-- Parameters: 355 million
-- Layers: 24
-- Hidden size: 1024
-- Attention heads: 16
-- Vocabulary size: 50,257
+This project fine-tunes **GPT-2 Medium (355M parameters)** using both **LoRA** (16-bit base model) and **QLoRA** (4-bit NF4 quantized base model).  
+The goal is **not** to build a production model, but to **scientifically analyze** when quantization-based parameter-efficient tuning behaves similarly to LoRA — and when it diverges.
 
-**Adaptation Method:**
-- Technique: QLoRA (4-bit quantization + LoRA adapters)
-- Rank (r): [Varies: 2, 4, 8, or 16 depending on variant]
-- Target modules: c_attn (Query, Key, Value projections)
-- LoRA alpha: 16
-- LoRA dropout: 0.05
+Both models are trained on a **5,000-sample subset** of the Stanford Alpaca dataset for **instruction following**.
 
-## Intended Use
+---
 
-### Primary Intended Uses
+# 📐 Model Architecture
 
-1. **Research and Education:**
-   - Understanding parameter-efficient fine-tuning mechanisms
-   - Studying quantization effects on model performance
-   - Teaching material for NLP and deep learning courses
+### Base Model: GPT-2 Medium
+- 355 million parameters  
+- 24 decoder-only transformer layers  
+- Hidden size: 1024  
+- Attention heads: 16  
+- Context window: 1024 tokens  
+- Vocabulary size: 50,257  
 
-2. **Diagnostic Analysis:**
-   - Benchmarking QLoRA against standard LoRA
-   - Investigating rank threshold effects
-   - Analyzing layer sensitivity to quantization
+### Adaptation Methods
+We train and compare **two variants** of the model:
 
-3. **Prototyping:**
-   - Rapid iteration on instruction-following systems
-   - Testing prompt engineering strategies
-   - Exploring low-resource deployment scenarios
+---
 
-### Out-of-Scope Uses
+## **1. LoRA (Baseline, 16-bit)**  
+- Base model loaded in **float16**  
+- Trainable low-rank updates applied to:  
+  - `transformer.h.*.attn.c_attn` (QKV projection layer)  
+- Ranks tested: **r ∈ {2, 4, 8, 16}**  
+- LoRA α: 16  
+- LoRA dropout: 0.05  
 
-❌ **Not Intended For:**
-- Production deployment without extensive validation
-- High-stakes applications (medical diagnosis, legal advice, financial decisions)
-- Content moderation or safety-critical systems
-- Real-time applications requiring guaranteed latency
-- Generating factual information without verification
+---
 
-## Training Data
+## **2. QLoRA (Quantized, 4-bit NF4)**  
+Uses the full QLoRA stack:
+- **NF4 quantization** (information-theoretically optimal for Gaussian weights)  
+- **Double quantization** (quantization of quantization constants)  
+- **Paged optimizers** (offloads optimizer state to CPU memory)  
+- Compute dtype: **bfloat16**  
+- Same LoRA adapter configuration as above  
+- Ranks tested: **r ∈ {2, 4, 8, 16}**  
 
-**Dataset:** Stanford Alpaca  
-**Size Used:** 1,000 samples (subset for diagnostic experiments)  
-**Full Dataset:** 52,000 instruction-response pairs  
-**Source:** Self-Instruct methodology using GPT-3.5-turbo  
-**License:** CC BY NC 4.0 (Non-commercial use only)
+**Why QLoRA?**  
+QLoRA reduces GPU memory for the *base model* from ~12 GB → ~3 GB while keeping LoRA adapters in high precision.
 
-**Data Format:**
+---
+
+# 🎯 Intended Use
+
+### **Primary Intended Uses**
+✔ Educational demonstration of parameter-efficient finetuning  
+✔ Research on quantization effects and optimization behavior  
+✔ Diagnostic comparison of LoRA vs QLoRA  
+✔ Small-scale prototyping for instruction-following behaviors  
+
+### **Not Intended For**
+✘ High-stakes applications (medical, legal, financial)  
+✘ Safety-critical systems  
+✘ Real-time production deployment  
+✘ Commercial use (Alpaca dataset is **non-commercial**)  
+
+---
+
+# 📚 Training Data
+
+### Dataset: **Stanford Alpaca**
+- Original size: 52,000 instruction–response pairs  
+- **Subset used:** 5,000 examples (seed=42)  
+- Type: Instruction-following (Self-Instruct method using GPT-3.5)  
+- License: **CC BY NC 4.0 (non-commercial)**  
+
+### Data Formatting
+Each example is converted into a unified tuning format:
+
 ```
-### Instruction:
-{instruction_text}
 
-### Input: (optional)
-{input_text}
+### Instruction:
+
+{text}
+
+### Input:
+
+{text or empty}
 
 ### Response:
-{output_text}
+
+{text}
+
 ```
 
-**Task Distribution:** Diverse instructions including:
-- Text generation and completion
-- Question answering
-- Translation
-- Summarization
-- Classification and categorization
-- Code generation (limited)
+### Limitations of dataset
+- Synthetic, not human-labeled  
+- English-only  
+- Inherits GPT-3.5 biases  
+- Not representative of complex real-world instructions  
 
-## Training Procedure
+---
 
-**Training Configuration:**
-- Framework: HuggingFace Transformers + PEFT
-- Optimizer: AdamW
-- Learning rate: 2×10⁻⁴
-- Batch size: 4
-- Max training steps: 200
-- Gradient accumulation: 1
-- Compute dtype: BF16
-- Hardware: Google Colab (NVIDIA T4, 16GB VRAM)
+# ⚙️ Training Configuration
 
-**Quantization Details:**
-- Method: 4-bit NormalFloat (NF4)
-- Blocksize: 64
-- Double quantization: Enabled
-- Compute dtype: BF16
+All final experiments in the README & analysis were run on **DGX JupyterLab** using an **NVIDIA GB10 GPU**.
 
-## Evaluation
-
-### Metrics
-
-1. **Memory Efficiency:**
-   - Peak GPU memory (MB)
-   - Measured via `torch.cuda.max_memory_allocated()`
-
-2. **Performance Preservation:**
-   - Token match rate (greedy decoding)
-   - Embedding cosine similarity
-   - Training loss
-
-3. **Training Efficiency:**
-   - Time per training step (seconds)
-
-### Results
-
-[TODO: Fill in after experiments complete]
-
-**Memory Reduction:** QLoRA achieves [X]% memory reduction vs. 16-bit LoRA
-
-**Performance:** Cosine similarity with 16-bit LoRA baseline: [X] (threshold: ≥0.95)
-
-**Optimal Rank:** r=[X] provides best balance of performance and efficiency
-
-## Limitations
-
-### Known Issues
-
-1. **Model Size Constraints:**
-   - GPT-2 Medium (355M) is significantly smaller than modern LLMs (7B+)
-   - May not generalize findings to larger models
-   - Limited context window (1024 tokens)
-
-2. **Training Data Limitations:**
-   - Only 1,000 samples used for diagnostic purposes
-   - Not representative of full fine-tuning performance
-   - May overfit to limited training distribution
-
-3. **Quantization Effects:**
-   - 4-bit quantization introduces information loss
-   - May affect rare tokens or edge cases disproportionately
-   - Long-term drift effects unknown
-
-4. **Task Specificity:**
-   - Fine-tuned only on instruction-following
-   - May not perform well on other tasks (e.g., code generation, reasoning)
-
-### Bias and Fairness
-
-**Inherited Biases:**
-- GPT-2 trained on Reddit data (demographic skew toward young, male, Western users)
-- Known biases in gender, race, religion, and political orientation
-- Alpaca data generated by GPT-3.5 (inherits OpenAI model biases)
-
-**Quantization Impact on Bias:**
-- Unknown whether 4-bit quantization affects fairness metrics
-- Potential for amplification or reduction of biases (requires further study)
-
-## Ethical Considerations
-
-### Potential Harms
-
-1. **Misinformation:** May generate plausible but incorrect information
-2. **Toxic Content:** Can produce harmful outputs if prompted inappropriately
-3. **Privacy:** May memorize and regurgitate training data
-4. **Bias Amplification:** May reinforce societal biases present in training data
-
-### Mitigation Strategies
-
-1. **Content Filtering:** Implement input/output safety classifiers
-2. **Human Oversight:** Require human review for high-stakes applications
-3. **Usage Monitoring:** Log and analyze usage patterns for abuse detection
-4. **Access Control:** Deploy behind authentication and rate limiting
-5. **Transparency:** Clearly communicate limitations to end users
-
-## Licenses
-
-**Code:** MIT License  
-**Base Model:** OpenAI GPT-2 (MIT License)  
-**Training Data:** CC BY NC 4.0 (Non-commercial use only)  
-
-**IMPORTANT:** Due to Alpaca dataset license, this model may only be used for **non-commercial purposes**.
-
-## Citation
-
-If you use this model or code in your research, please cite:
-
-```bibtex
-@misc{ellis2025qlora_diagnostic,
-  author = {Ellis, Caroline},
-  title = {QLoRA Diagnostic Analysis: When Does 4-Bit Quantization Preserve Quality?},
-  year = {2025},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/[YOUR_USERNAME]/QLoRA-Project}}
-}
 ```
 
-**Original Papers:**
+MODEL_NAME = "gpt2-medium"
+NUM_SAMPLES = 5000
+MAX_STEPS = 1000
+BATCH_SIZE = 8
+LEARNING_RATE = 2e-4
+RANKS = [2, 4, 8, 16]
+
+````
+
+### Major Dependencies
+- HuggingFace Transformers  
+- PEFT (LoRA/QLoRA)  
+- bitsandbytes (4-bit quantization)  
+- Accelerate  
+- PyTorch 2.9+  
+
+### Hardware Notes
+- GPT-2 Medium LoRA (r=8) peak memory: **≈ 11.6 GB**  
+- GPT-2 Medium QLoRA (r=8) peak memory: **≈ 3.3 GB**  
+- Training time per step:  
+  - LoRA: **~1.002 s**  
+  - QLoRA: **~1.445 s** (slower due to dequantization + paged optimizers)
+
+---
+
+# 🧪 Evaluation
+
+The model card reflects the diagnostic goals of the project:  
+to measure **memory**, **performance**, **speed**, and **weight divergence** between LoRA and QLoRA.
+
+## Metrics Used
+### 1. **Memory Efficiency**
+Measured using:
+```python
+torch.cuda.max_memory_allocated()
+````
+
+### 2. **Performance Preservation**
+
+* Training loss
+* Relative degradation (%) between LoRA and QLoRA
+* Cosine similarity of adapter weights (select layers 0, 12, 23)
+
+### 3. **Training Efficiency**
+
+* Time per training step (sec)
+
+---
+
+# 📊 Key Results (Rank 8 Example)
+
+### **Memory Reduction**
+
+| Method            | Peak GPU Memory |
+| ----------------- | --------------- |
+| LoRA (16-bit)     | 11,632 MB       |
+| QLoRA (4-bit NF4) | 3,292 MB        |
+| **Reduction**     | **≈ 71.7%**     |
+
+---
+
+### **Performance Degradation**
+
+Across all ranks tested:
+
+```
+Degradation range: 1.33% – 1.44%
+Threshold for acceptability: <5%
+```
+
+→ All ranks acceptable.
+
+---
+
+### **Rank Threshold**
+
+```
+Minimum viable rank: r* = 2
+All tested ranks satisfy <5% degradation requirement.
+```
+
+---
+
+### **Optimal Rank**
+
+```
+r = 8
+→ Best point on memory vs performance Pareto frontier
+```
+
+---
+
+### **Weight Similarity (H1 Test)**
+
+Mean cosine similarity across layers {0, 12, 23}:
+
+```
+cosine ≈ 0.8928  (< 0.95 threshold)
+```
+
+**Interpretation:**
+QLoRA does NOT replicate LoRA’s learned adapters — quantization perturbs the optimization path significantly.
+
+---
+
+# 🔍 Limitations
+
+### Model-Level Limitations
+
+* GPT-2 Medium is *very* small by modern standards (355M vs 7B–70B).
+* Instruction-following quality is significantly below current LLMs.
+* Limited context window (1024 tokens).
+
+### Fine-Tuning Limitations
+
+* Only 5,000 Alpaca examples (not a full instruction-tuning regimen).
+* No RLHF, no reward modeling.
+* Loss curves do not necessarily reflect downstream task quality.
+
+### QLoRA-Specific Limitations
+
+* 4-bit NF4 quantization introduces nontrivial noise.
+* Training becomes slower due to paged optimizers + dequantization.
+* Quantization effects may be stronger in early or late transformer layers (observed weight divergence).
+
+---
+
+# ⚖️ Ethical Considerations (Summary)
+
+**For full details see:** `docs/ethical_considerations.md`
+
+Key points:
+
+* Model inherits biases from GPT-2 (trained on Reddit links).
+* Alpaca dataset reflects GPT-3.5 biases.
+* QLoRA may alter fairness properties unpredictably.
+* Non-commercial license applies.
+* Not suitable for deployment without comprehensive safety checks.
+
+---
+
+# 🛠 Recommended vs Not Recommended Use
+
+### 👍 Use This Model For:
+
+* Educational demos of QLoRA
+* Benchmarking rank/quantization effects
+* Research on LoRA vs QLoRA divergence
+* Low-VRAM experimentation (QLoRA saves ≈72% memory)
+
+### 👎 Do NOT Use This Model For:
+
+* Any commercial product (Alpaca CC BY-NC 4.0)
+* High-stakes applications
+* Factual question answering
+* Safety-critical or open public deployment
+
+---
+
+# 📄 Licenses
+
+| Component             | License                        |
+| --------------------- | ------------------------------ |
+| GPT-2 Medium          | MIT                            |
+| Alpaca Dataset        | CC BY NC 4.0                   |
+| This codebase         | MIT                            |
+| This diagnostic model | Non-commercial (due to Alpaca) |
+
+---
+
+# 📚 Citations
+
 ```bibtex
 @article{dettmers2023qlora,
   title={QLoRA: Efficient Finetuning of Quantized LLMs},
@@ -215,12 +298,24 @@ If you use this model or code in your research, please cite:
   journal={ICLR},
   year={2022}
 }
+
+@misc{ellis2025qlora_diagnostic,
+  author={Ellis, Caroline},
+  title={QLoRA Diagnostic Analysis: When Does 4-Bit Quantization Preserve Quality?},
+  year={2025},
+  howpublished={\url{https://github.com/carolinelmu1/QLoRA-Project}}
+}
 ```
 
-## Model Card Contact
+---
 
-**Maintainer:** Caroline Ellis  
-**Email:** [your_email@vanderbilt.edu]  
-**GitHub:** [https://github.com/[YOUR_USERNAME]/QLoRA-Project]
+# 📬 Contact
+
+**Author:** Caroline Ellis
+**Email:** [[caroline.m.ellis@vanderbilt.edu](mailto:your_email@vanderbilt.edu)]
+**GitHub:** [https://github.com/carolinelmu1/QLoRA-Project](https://github.com/carolinelmu1/QLoRA-Project)
+
+---
 
 **Last Updated:** December 2025
+
