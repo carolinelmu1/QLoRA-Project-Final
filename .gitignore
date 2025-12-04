@@ -28,7 +28,6 @@ __pycache__/
 # Results and generated outputs
 # (optional—remove these lines if you want results committed)
 # -----------------------
-results/
 notebooks/outputs/
 
 # -----------------------
