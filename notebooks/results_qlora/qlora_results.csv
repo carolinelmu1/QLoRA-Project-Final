@@ -1,0 +1,5 @@
+experiment_name,quantization,rank,peak_memory_mb,training_time_seconds,time_per_step,training_loss
+4bit_r2,4bit,2,3284.5923,1443.1221,1.4431,2.0032
+4bit_r4,4bit,4,3287.5923,1446.8309,1.4468,2.0009
+4bit_r8,4bit,8,3292.0923,1444.9093,1.4449,2.0
+4bit_r16,4bit,16,3301.0923,1445.4856,1.4455,2.0003

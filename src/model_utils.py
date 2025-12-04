@@ -22,7 +22,7 @@ def get_model_memory_usage():
     """Get current GPU memory usage in MB"""
     if torch.cuda.is_available():
         return torch.cuda.memory_allocated() / 1024 / 1024
-    return 0
+    return 0nf4
 
 
 def clear_memory():

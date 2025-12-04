@@ -309,8 +309,8 @@ def print_diagnostic_summary(results_dict):
     
     print("\n🎯 PERFORMANCE PRESERVATION")
     print("-" * 70)
-    cos_sim = results_dict.get('mean_cosine_similarity', 0)
-    token_match = results_dict.get('mean_token_match', 0)
+    cos_sim = results_dict.get('mean_cosine_similarity') or 0.0
+    token_match = results_dict.get('mean_token_match') or 0.0
     
     print(f"  Cosine Similarity:  {cos_sim:>6.4f}")
     print(f"  Token Match Rate:   {token_match:>6.4f}")
@@ -320,8 +320,8 @@ def print_diagnostic_summary(results_dict):
     
     print("\n⚡ TRAINING EFFICIENCY")
     print("-" * 70)
-    lora_time = results_dict.get('lora_time_per_step', 0)
-    qlora_time = results_dict.get('qlora_time_per_step', 0)
+    lora_time = results_dict.get('lora_time_per_step') or 0.0
+    qlora_time = results_dict.get('qlora_time_per_step') or 0.0
     speedup = (lora_time / qlora_time) if qlora_time > 0 else 1.0
     
     print(f"  LoRA time/step:   {lora_time:>7.3f}s")

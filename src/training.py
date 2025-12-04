@@ -82,7 +82,7 @@ class MemoryTrackingTrainer(Trainer):
         self.memory_log = []
         self.peak_memory = 0
         
-    def training_step(self, model, inputs):
+    def training_step(self, model, inputs, *args):
         """Override training step to track memory"""
         
         # Memory before forward pass
@@ -90,7 +90,7 @@ class MemoryTrackingTrainer(Trainer):
             torch.cuda.reset_peak_memory_stats()
         
         # Standard training step
-        loss = super().training_step(model, inputs)
+        loss = super().training_step(model, inputs, *args)
         
         # Track peak memory
         if torch.cuda.is_available():
