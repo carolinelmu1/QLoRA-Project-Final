@@ -1,193 +1,170 @@
-# Data Card: Stanford Alpaca Dataset
+# Data Card: Stanford Alpaca (5,000-Sample Subset for Diagnostic QLoRA Analysis)
 
-## Dataset Summary
+**Dataset Name:** Stanford Alpaca  
+**Subset Size Used:** 5,000 examples  
+**Full Dataset Size:** 52,000 examples  
+**Created by:** Stanford CRFM (Taori et al., 2023)  
+**Used in:** DS 5690 QLoRA Diagnostic Project  
+**Maintainer (project subset):** Caroline Ellis  
+**License:** CC BY-NC 4.0 (Non-commercial)  
 
-**Name:** Stanford Alpaca  
-**Version:** 1.0  
-**Release Date:** March 2023  
-**Organization:** Stanford CRFM (Center for Research on Foundation Models)  
-**License:** CC BY NC 4.0 (Non-commercial use only)
+---
 
-### Description
+# 📌 Overview
 
-The Stanford Alpaca dataset consists of 52,000 instruction-following demonstrations generated using OpenAI's text-davinci-003 (GPT-3.5) model via the Self-Instruct methodology. The dataset is designed for fine-tuning language models to follow natural language instructions.
+The Stanford Alpaca dataset is a collection of instruction–response pairs generated using the Self-Instruct methodology. For this project, a **5,000-example random subset (seed=42)** was used to enable:
 
-**Key Characteristics:**
-- 52,000 instruction-response pairs
-- Diverse tasks covering multiple domains
-- Generated from 175 human-written seed instructions
-- High-quality responses curated through systematic prompting
+- Reproducible QLoRA/LoRA comparisons  
+- Fast iteration on DGX JupyterLab  
+- Controlled diagnostic analysis of rank & quantization effects  
 
-## Dataset Structure
+This dataset is used **solely for educational and research purposes** and cannot be used commercially due to licensing.
 
-### Data Format
+---
 
-Each example contains three fields:
+# 📁 Dataset Structure
 
-```json
-{
-  "instruction": "A natural language instruction",
-  "input": "Optional context or input (empty string if not needed)",
-  "output": "The expected response or completion"
-}
-```
-
-### Example
+Each example contains:
 
 ```json
 {
-  "instruction": "Identify the odd one out from the following list of fruits.",
-  "input": "Apple, Banana, Carrot, Orange",
-  "output": "Carrot is the odd one out, as it is a vegetable while the rest are fruits."
+  "instruction": "...",
+  "input": "... (optional)",
+  "output": "..."
 }
+````
+
+For training, each example was converted to:
+
+```
+### Instruction:
+{instruction}
+
+### Input:
+{input}
+
+### Response:
+{output}
 ```
 
-### Task Distribution
+This structure matches the formatting used in the Alpaca LoRA and QLoRA pipelines.
 
-The dataset covers diverse instruction types:
+---
 
-| Task Category | Approximate % | Examples |
-|--------------|--------------|----------|
-| Open QA | ~25% | "What is the capital of France?" |
-| Closed QA | ~20% | "Is the following statement true or false?" |
-| Classification | ~15% | "Categorize the following items" |
-| Generation | ~15% | "Write a short story about..." |
-| Rewriting | ~10% | "Paraphrase the following text" |
-| Summarization | ~10% | "Summarize this article" |
-| Other | ~5% | Math, code, reasoning |
+# 🔍 Data Properties
 
-## Dataset Creation
+| Property                     | Description                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| **Language**                 | English                                                  |
+| **Domains**                  | General-purpose NLP tasks                                |
+| **Tasks included**           | QA, summarization, generation, classification, rewriting |
+| **Source model**             | GPT-3.5 (text-davinci-003)                               |
+| **Human involvement**        | Seed instructions only                                   |
+| **Sampling method (subset)** | Random selection, seed=42                                |
+| **Tokenization**             | GPT-2 tokenizer, max length 512                          |
+| **Train/Eval split**         | 90/10 (4,500 train / 500 eval)                           |
 
-### Source Data
+---
 
-**Seed Instructions:** 175 human-written instructions covering diverse tasks
+# 📊 Task Distribution (Approx.)
 
-**Generation Method:** Self-Instruct (Wang et al., 2022)
-1. Sample seed instructions
-2. Generate new instructions using GPT-3.5
-3. Filter for quality and diversity
-4. Generate input-output pairs
+| Category              | Examples in subset | Notes                            |
+| --------------------- | ------------------ | -------------------------------- |
+| Open-ended generation | ~20%               | Creative writing, stories        |
+| Closed QA             | ~20%               | Factual or structured answers    |
+| Summarization         | ~15%               | Article or paragraph summaries   |
+| Classification        | ~15%               | Categories or labels             |
+| Explanation tasks     | ~10%               | "Explain why..."                 |
+| Rewrite / paraphrase  | ~10%               | Simplification or transformation |
+| Miscellaneous         | ~10%               | Reasoning, translation, code     |
 
-**Model Used:** OpenAI text-davinci-003 (GPT-3.5-turbo)
+*Exact values vary, but the random subset maintains the diversity of the full dataset.*
 
-### Data Collection
+---
 
-**Timeline:** January - March 2023  
-**Cost:** ~$500 USD (OpenAI API costs)  
-**Human Involvement:**
-- Initial seed instruction authoring (175 examples)
-- Quality review and filtering
-- No manual annotation of generated pairs
+# 🧹 Preprocessing Performed
 
-### Data Processing
+1. Removed malformed or empty entries
+2. Reformatted data into Alpaca-LoRA training format
+3. Tokenized with GPT-2 tokenizer
+4. Right-padded sequences
+5. Limited max length to **512** tokens
+6. Shuffled before splitting using seed=42
 
-1. **Generation:** Systematic prompting of GPT-3.5 with seed instructions
-2. **Filtering:** Remove duplicates, low-quality, or inappropriate responses
-3. **Validation:** Automated checks for format consistency
-4. **Release:** Publicly released on GitHub and HuggingFace
+---
 
-## Subset Used in This Project
+# 🔑 Key Limitations
 
-**Size:** 1,000 samples (randomly selected)  
-**Purpose:** Diagnostic experiments with fast iteration  
-**Split:** 90% train (900 samples), 10% eval (100 samples)  
-**Sampling:** Random selection with seed=42 for reproducibility
+### **1. Synthetic, Not Human-Annotated**
 
-**Preprocessing for This Project:**
-- Tokenized using GPT-2 tokenizer
-- Max sequence length: 512 tokens
-- Formatted as: `### Instruction:\n{instruction}\n\n### Response:\n{response}`
-- Padding: Right-padded to max length
+All outputs originate from GPT-3.5.
+Potential issues include:
 
-## Known Limitations
+* Hallucination
+* Stylistic biases
+* Artificial consistency not present in human datasets
 
-### Data Quality
+### **2. English-Only**
 
-1. **Synthetic Generation:**
-   - All outputs generated by GPT-3.5 (not human-written)
-   - May contain factual errors or inconsistencies
-   - Reflects GPT-3.5 biases and limitations
+Not representative of multilingual or multicultural instruction following.
 
-2. **Instruction Diversity:**
-   - Limited by 175 seed instructions
-   - May not cover all real-world use cases
-   - Skewed toward common NLP tasks
+### **3. Biases from GPT-3.5**
 
-3. **Language:**
-   - English only
-   - May not generalize to multilingual settings
+This dataset inherits:
 
-### Bias and Fairness
+* Political, cultural, and demographic biases
+* Over-politeness or alignment artifacts
+* American/Western framing
 
-**Inherited Biases:**
-- GPT-3.5 training data biases (unknown but likely similar to GPT-2/GPT-3)
-- Potential demographic skew in seed instruction authorship
-- Cultural biases toward Western/English-speaking contexts
+### **4. Restricted License**
 
-**Known Issues:**
-- Gender stereotypes in role-based examples
-- Cultural assumptions (e.g., holidays, geography)
-- Potential toxic content despite filtering
+CC BY-NC 4.0 prohibits commercial use.
+Any model trained on this dataset must remain **non-commercial**.
 
-**Bias Analysis:** Limited formal bias analysis conducted on this dataset
+---
 
-## Ethical Considerations
+# ⚠ Ethical Risks
 
-### Intended Use
+Although the dataset is relatively clean, risks include:
 
-✅ **Appropriate Uses:**
-- Academic research on instruction-following
-- Educational demonstrations of fine-tuning techniques
-- Non-commercial applications and experimentation
+* Generation of biased or harmful outputs
+* Overgeneralization from synthetic patterns
+* Reinforcing GPT-3.5’s distributional quirks
+* Potential leakage of memorized patterns
+* Misuse if used to train instruction-following models without safety layers
 
-❌ **Inappropriate Uses:**
-- Commercial deployment (violates CC BY NC 4.0 license)
-- High-stakes applications without validation
-- Generating content claimed as human-authored
+For more, see: `docs/ethical_considerations.md`
 
-### Privacy
+---
 
-- No personally identifiable information (PII) intentionally included
-- Generated synthetically (not scraped from user data)
-- However, GPT-3.5 may have memorized PII from training data
+# 📥 Access & References
 
-### Terms of Use
+### Original Dataset
 
-**License:** CC BY NC 4.0  
-**Requirements:**
-- Attribution to Stanford CRFM
-- Non-commercial use only
-- Share-alike (derivatives must use same license)
+* GitHub: [https://github.com/tatsu-lab/stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca)
+* License: CC BY-NC 4.0
+* Paper: "Stanford Alpaca: An Instruction-Following LLaMA Model" (Taori et al., 2023)
+* Download Size: ~24 MB (JSON format)
 
-**Commercial Use:** Prohibited without explicit permission
-
-## Access
-
-**HuggingFace:** `tatsu-lab/alpaca`  
-**GitHub:** [https://github.com/tatsu-lab/stanford_alpaca](https://github.com/tatsu-lab/stanford_alpaca)  
-**Download Size:** ~24 MB (JSON format)
-
-## Citation
-
-If you use the Alpaca dataset, please cite:
+### Citation
 
 ```bibtex
 @misc{alpaca,
   author = {Rohan Taori and Ishaan Gulrajani and Tianyi Zhang and Yann Dubois and Xuechen Li and Carlos Guestrin and Percy Liang and Tatsunori B. Hashimoto},
   title = {Stanford Alpaca: An Instruction-following LLaMA model},
   year = {2023},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/tatsu-lab/stanford_alpaca}},
+  howpublished = {\url{https://github.com/tatsu-lab/stanford_alpaca}}
 }
 ```
 
-**Self-Instruct Paper:**
+### Self-Instruct Method
+
 ```bibtex
 @article{wang2022self,
   title={Self-Instruct: Aligning Language Model with Self Generated Instructions},
   author={Wang, Yizhong and Kordi, Yeganeh and Mishra, Swaroop and Liu, Alisa and Smith, Noah A and Khashabi, Daniel and Hajishirzi, Hannaneh},
+  year={2022},
   journal={arXiv preprint arXiv:2212.10560},
-  year={2022}
 }
 ```
 
@@ -199,15 +176,19 @@ If you use the Alpaca dataset, please cite:
 
 **Known Issues:** See GitHub issues page for community-reported problems
 
-## Data Card Contact
+---
+
+# 📬 Contact
 
 For questions about this data card or the dataset subset used in this project:
 
-**Project Author:** Caroline Ellis  
-**Email:** [your_email@vanderbilt.edu]  
-**GitHub:** [https://github.com/[YOUR_USERNAME]/QLoRA-Project]
+**Project Author:** Caroline Ellis
+**Email:** [caroline.m.ellis@vanderbilt.edu](mailto:your_email@vanderbilt.edu)
+**Github:** [https://github.com/carolinelmu1/QLoRA-Project](https://github.com/carolinelmu1/QLoRA-Project)
 
 For questions about the original Alpaca dataset:
 
 **Stanford CRFM:** [https://crfm.stanford.edu/](https://crfm.stanford.edu/)  
 **GitHub Issues:** [https://github.com/tatsu-lab/stanford_alpaca/issues](https://github.com/tatsu-lab/stanford_alpaca/issues)
+
+*Last updated: December 2025*
