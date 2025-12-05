@@ -85,6 +85,8 @@ This aligns with the formal update rules for transformer training, showing how q
 
 Additionally, the use of low-rank adaptation directly maps to the course’s discussions of efficient parameter updates and memory/time complexity trade-offs in large models.
 
+**Extended Theoretical Pseudocode:** [`docs/algorithm13_extension.md`](docs/algorithm13_extension.md)
+
 ---
 
 # 🔧 Methodology
