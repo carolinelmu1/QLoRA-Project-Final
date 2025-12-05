@@ -184,7 +184,7 @@ For questions about this data card or the dataset subset used in this project:
 
 **Project Author:** Caroline Ellis
 **Email:** [caroline.m.ellis@vanderbilt.edu](mailto:your_email@vanderbilt.edu)
-**Github:** [https://github.com/carolinelmu1/QLoRA-Project](https://github.com/carolinelmu1/QLoRA-Project)
+**Github:** [https://github.com/carolinelmu1/QLoRA-Project-Final](https://github.com/carolinelmu1/QLoRA-Project-Final)
 
 For questions about the original Alpaca dataset:
 
