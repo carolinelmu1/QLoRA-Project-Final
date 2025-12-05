@@ -3,7 +3,7 @@
 **Date:** December 2025  
 **Author:** Caroline Ellis  
 **Project:** DS 5690 – Diagnostic Analysis of QLoRA  
-**Repository:** https://github.com/carolinelmu1/QLoRA-Project  
+**Repository:** https://github.com/carolinelmu1/QLoRA-Project-Final  
 
 ---
 
@@ -303,7 +303,7 @@ Key points:
   author={Ellis, Caroline},
   title={QLoRA Diagnostic Analysis: When Does 4-Bit Quantization Preserve Quality?},
   year={2025},
-  howpublished={\url{https://github.com/carolinelmu1/QLoRA-Project}}
+  howpublished={\url{https://github.com/carolinelmu1/QLoRA-Project-Final}}
 }
 ```
 
@@ -313,7 +313,7 @@ Key points:
 
 **Author:** Caroline Ellis
 **Email:** [[caroline.m.ellis@vanderbilt.edu](mailto:your_email@vanderbilt.edu)]
-**GitHub:** [https://github.com/carolinelmu1/QLoRA-Project](https://github.com/carolinelmu1/QLoRA-Project)
+**GitHub:** [https://github.com/carolinelmu1/QLoRA-Project-Final](https://github.com/carolinelmu1/QLoRA-Project-Final)
 
 ---
 
