@@ -244,6 +244,6 @@ Any downstream model trained on Alpaca **must** remain non-commercial.
 
 **Author:** Caroline Ellis  
 **Email:** caroline.m.ellis@vanderbilt.edu  
-**Project:** https://github.com/carolinelmu1/QLoRA-Project  
+**Project:** https://github.com/carolinelmu1/QLoRA-Project-Final  
 
 _Last updated: December 2025_
